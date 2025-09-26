@@ -11,8 +11,8 @@ function createExpressApp( { config, env }) {
     app.set("views", join(__dirname, ".."));
     app.set("view engine", "pug");
     
-    mountMiddleware(app);
-    mountRoutes(app);
+    mountMiddleware(app, env);
+    mountRoutes(app, config);
 
     return app;
 }

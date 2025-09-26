@@ -29,6 +29,6 @@ module.exports = {
     appName: requireFromEnv('APP_NAME'),
     databaseUrl: requireFromEnv('DATABASE_URL'),
     env: requireFromEnv('NODE_ENV'),
-    port: requireFromEnv(requireFromEnv('PORT'), 10),
+    port: parseInt(requireFromEnv('PORT'), 10),
     version: packageJson.version,
 }
