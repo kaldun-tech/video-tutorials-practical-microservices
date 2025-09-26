@@ -1,0 +1,8 @@
+services:
+  practical_microservices_db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=practical_microservices
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - '0.0.0.0:5432:5432'
