@@ -8,9 +8,7 @@
 ***/
 const express = require('express')
 
-function createActions ({
-  db
-}) {
+function createActions ({ db }) {
   function recordViewing (traceId, videoId) {
     // Return something Promise-based so that the endpoint doesn't crash
     return Promise.resolve(true)
@@ -36,9 +34,7 @@ function createHandlers ({ actions }) {
 function createRecordViewings ({ 
   db
 }) {
-  const actions = createActions({
-    db
-  })
+  const actions = createActions({ db })
   const handlers = createHandlers({ actions }) 
 
   const router = express.Router() 
