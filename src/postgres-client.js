@@ -1,0 +1,38 @@
+/***
+ * Excerpted from "Practical Microservices",
+ * published by The Pragmatic Bookshelf.
+ * Copyrights apply to this code. It may not be used to create training material,
+ * courses, books, articles, and the like. Contact us if you are in doubt.
+ * We make no guarantees that this code is fit for any purpose.
+ * Visit https://pragprog.com/titles/egmicro for more book information.
+***/
+const Bluebird = require('bluebird')
+const pg = require('pg')
+
+function createDatabase ({ connectionString }) {
+  const client = new pg.Client({ connectionString, Promise: Bluebird })
+
+  let connectedClient = null
+
+  function connect () {
+    if (!connectedClient) {
+      connectedClient = client.connect()
+        .then(() => client.query('SET search_path = message_store, public'))
+        .then(() => client)
+    }
+
+    return connectedClient
+  }
+
+  function query (sql, values = []) {
+    return connect()
+      .then(client => client.query(sql, values))
+  }
+
+  return {
+    query,
+    stop: () => client.end()
+  }
+}
+
+module.exports = createDatabase
