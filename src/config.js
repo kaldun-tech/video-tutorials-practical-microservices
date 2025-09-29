@@ -18,6 +18,7 @@ const createPostgresClient = require('./postgres-client')
 const createMessageStore = require('./message-store')
 
 const createHomePageAggregator = require('./aggregators/home-page')
+const createRegisterUsersApp = require('./app/register-users')
 
 function createConfig({ env }) {
   const knexClient = createKnexClient({
@@ -36,6 +37,8 @@ function createConfig({ env }) {
     messageStore
   })
 
+  const registerUsersApp = createRegisterUsersApp({ db: knexClient, messageStore })
+
   const aggregators = [
     homePageAggregator
   ]
@@ -50,6 +53,7 @@ function createConfig({ env }) {
     homeApp,
     recordViewingsApp,
     homePageAggregator,
+    registerUsersApp,
     aggregators,
     components,
   }
