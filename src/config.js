@@ -19,6 +19,7 @@ const createMessageStore = require('./message-store')
 
 const createHomePageAggregator = require('./aggregators/home-page')
 const createRegisterUsersApp = require('./app/register-users')
+const createIdentityComponent = require('./components/identity') 
 
 function createConfig({ env }) {
   const knexClient = createKnexClient({
@@ -43,7 +44,9 @@ function createConfig({ env }) {
     homePageAggregator
   ]
 
-  const components = []
+  const components = [
+    createIdentityComponent({ messageStore })
+  ]
 
   return {
     env,
@@ -56,6 +59,7 @@ function createConfig({ env }) {
     registerUsersApp,
     aggregators,
     components,
+    identityComponent,
   }
 }
 
