@@ -19,7 +19,6 @@ function writeRegisteredEvent (context, err) {
   const command = context.command
 
   const registeredEvent = {
-    // ...
     id: uuid(),
     type: 'Registered',
     metadata: {
