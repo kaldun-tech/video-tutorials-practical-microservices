@@ -7,6 +7,7 @@
  * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
 ***/
 const express = require('express')
+const { v4: uuid } = require('uuid')
 
 function createActions ({ messageStore }) {
   function recordViewing (traceId, videoId, userId) {
