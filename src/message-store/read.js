@@ -6,18 +6,10 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/***
- * Excerpted from "Practical Microservices",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
-***/
 const deserializeMessage = require('./deserialize-message')
 
 const getLastMessageSql = 'SELECT * FROM get_last_stream_message($1)'
-const getCategoryMessagesSql = 'SELECT * FROM get_category_messages($1, $2, $3)' // (1)
+const getCategoryMessagesSql = 'SELECT * FROM get_category_messages($1, $2, $3)'
 const getStreamMessagesSql = 'SELECT * FROM get_stream_messages($1, $2, $3)'
 const getAllMessagesSql = `
   SELECT 
@@ -81,24 +73,24 @@ function createRead ({ db }) {
    * reading from
    * @param {number} [maxMessages=1000] Maximum number of messages to return.
    */
-  function read (streamName, fromPosition = 0, maxMessages = 1000) { // (2)
-    let query = null // (3)
+  function read (streamName, fromPosition = 0, maxMessages = 1000) {
+    let query = null
     let values = []
     if (streamName === '$all') {
       query = getAllMessagesSql
       values = [fromPosition, maxMessages]
     } else
-    if (streamName.includes('-')) { // (4)
+    if (streamName.includes('-')) {
       // Entity streams have a dash
       query = getStreamMessagesSql
       values = [streamName, fromPosition, maxMessages]
-    } else { // (5)
+    } else {
       // Category streams do not have a dash
       query = getCategoryMessagesSql
       values = [streamName, fromPosition, maxMessages]
     }
 
-    return db.query(query, values) // (6)
+    return db.query(query, values)
       .then(res => res.rows.map(deserializeMessage))
   }
 
@@ -116,7 +108,6 @@ function createRead ({ db }) {
   return {
     read,
     readLastMessage,
-    // ...
     fetch
   }
 }

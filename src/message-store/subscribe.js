@@ -6,22 +6,13 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/***
- * Excerpted from "Practical Microservices",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
-***/
 const Bluebird = require('bluebird')
 const uuid = require('uuid').v4
 
 const category = require('./category')
 
 function configureCreateSubscription ({ read, readLastMessage, write }) {
-  // ...
-  return ({ // (1)
+  return ({
     streamName,
     handlers,
     messagesPerTick = 100,
@@ -30,15 +21,13 @@ function configureCreateSubscription ({ read, readLastMessage, write }) {
     originStreamName = null,
     tickIntervalMs = 100
   }) => {
-    const subscriberStreamName = `subscriberPosition-${subscriberId}` // (2)
+    const subscriberStreamName = `subscriberPosition-${subscriberId}`
 
     let currentPosition = 0
     let messagesSinceLastPositionWrite = 0
     let keepGoing = true
 
-    /**
-     * @description - Writes the subscription's read position
-     */
+    /** @description - Writes the subscription's read position */
     function writePosition (position) {
       const positionEvent = {
         id: uuid(),
@@ -160,7 +149,7 @@ function configureCreateSubscription ({ read, readLastMessage, write }) {
       keepGoing = false
     }
 
-    return { // (3)
+    return {
       loadPosition,
       start,
       stop,
