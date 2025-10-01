@@ -6,18 +6,13 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/**
- * @description Returns the category of the supplied `streamName`
- * @param {string} streamName The streamName from which to extract the category
- * @returns {string} The category of the supplied `streamName`
- */
-function category (streamName) {
-  // Double equals to catch null and undefined
-  if (streamName == null) {
-    return ''
-  }
+const AuthenticationError = require('../errors/authentication-error')
 
-  return streamName.split('-')[0]
+/**
+ * @description Normalizes the credential error to an AuthenticationError
+ */
+function handleCredentialNotFound (context) {
+  throw new AuthenticationError()
 }
 
-module.exports = category
+module.exports = handleCredentialNotFound

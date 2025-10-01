@@ -6,18 +6,10 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/***
- * Excerpted from "Practical Microservices",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
-***/
-const uuidv4 = require('uuid').v4 // (1)
+const uuidv4 = require('uuid').v4
 const uuidv5 = require('uuid').v5
 
-const uuidv5Namespace = '0c46e0b7-dfaf-443a-b150-053b67905cc2' // (2)
+const uuidv5Namespace = '0c46e0b7-dfaf-443a-b150-053b67905cc2'
 
 /**
  * @description Writes a command to send the registration email
@@ -27,14 +19,14 @@ const uuidv5Namespace = '0c46e0b7-dfaf-443a-b150-053b67905cc2' // (2)
  * @param {object} context.event The event that we're handling
  * @return {Promise} A Promise that resolves to the context
  */
-function writeSendCommand (context, err) { // (3)
+function writeSendCommand (context) {
   const event = context.event
   const identity = context.identity
   const email = context.email
 
   const emailId = uuidv5(identity.email, uuidv5Namespace)
 
-  const sendEmailCommand = { // (4)
+  const sendEmailCommand = {
     id: uuidv4(),
     type: 'Send',
     metadata: {
@@ -50,7 +42,7 @@ function writeSendCommand (context, err) { // (3)
       html: email.html
     }
   }
-  const streamName = `sendEmail:command-${emailId}` // (5)
+  const streamName = `sendEmail:command-${emailId}`
 
   return context.messageStore
     .write(streamName, sendEmailCommand)

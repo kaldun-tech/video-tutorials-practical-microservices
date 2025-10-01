@@ -20,6 +20,11 @@ const createMessageStore = require('./message-store')
 const createHomePageAggregator = require('./aggregators/home-page')
 const createRegisterUsersApp = require('./app/register-users')
 const createIdentityComponent = require('./components/identity') 
+const createUserCredentialsAggregator = 
+  require('./aggregators/user-credentials')
+const createAuthenticateApp = require('./app/authenticate') 
+const createPickupTransport = require('nodemailer-pickup-transport') 
+const createSendEmailComponent = require('./components/send-email') 
 
 function createConfig({ env }) {
   const knexClient = createKnexClient({
@@ -40,12 +45,31 @@ function createConfig({ env }) {
 
   const registerUsersApp = createRegisterUsersApp({ db: knexClient, messageStore })
 
+  const identityComponent = createIdentityComponent({ messageStore }) 
+
+  const userCredentialsAggregator = createUserCredentialsAggregator({ 
+    db: knexClient,
+    messageStore
+  })
+  const authenticateApp = createAuthenticateApp({ 
+    db: knexClient,
+    messageStore
+  })
+  const transport = createPickupTransport({ directory: env.emailDirectory }) 
+  const sendEmailComponent = createSendEmailComponent({ 
+    messageStore,
+    systemSenderEmailAddress: env.systemSenderEmailAddress,
+    transport
+  })
+
   const aggregators = [
-    homePageAggregator
+    homePageAggregator,
+    userCredentialsAggregator
   ]
 
   const components = [
-    createIdentityComponent({ messageStore })
+    identityComponent, 
+    sendEmailComponent,
   ]
 
   return {
@@ -60,6 +84,9 @@ function createConfig({ env }) {
     aggregators,
     components,
     identityComponent,
+    userCredentialsAggregator,
+    authenticateApp,
+    sendEmailComponent,
   }
 }
 
