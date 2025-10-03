@@ -19,12 +19,14 @@ const createMessageStore = require('./message-store')
 
 const createHomePageAggregator = require('./aggregators/home-page')
 const createRegisterUsersApp = require('./app/register-users')
-const createIdentityComponent = require('./components/identity') 
-const createUserCredentialsAggregator = 
+const createIdentityComponent = require('./components/identity')
+const createUserCredentialsAggregator =
   require('./aggregators/user-credentials')
-const createAuthenticateApp = require('./app/authenticate') 
-const createPickupTransport = require('nodemailer-pickup-transport') 
-const createSendEmailComponent = require('./components/send-email') 
+const createAuthenticateApp = require('./app/authenticate')
+const createPickupTransport = require('nodemailer-pickup-transport')
+const createSendEmailComponent = require('./components/send-email')
+const createVideoOperationsAggregator = require('./aggregators/video-operations')
+const createVideoPublishingComponent = require('./components/video-publishing')
 
 function createConfig({ env }) {
   const knexClient = createKnexClient({
@@ -39,6 +41,10 @@ function createConfig({ env }) {
   const recordViewingsApp = createRecordViewingsApp({ messageStore })
 
   const homePageAggregator = createHomePageAggregator({
+    db: knexClient,
+    messageStore
+  })
+  const videoOperationsAggregator = createVideoOperationsAggregator({
     db: knexClient,
     messageStore
   })
@@ -61,15 +67,20 @@ function createConfig({ env }) {
     systemSenderEmailAddress: env.systemSenderEmailAddress,
     transport
   })
+  const videoPublishingComponent = createVideoPublishingComponent({
+    messageStore
+  })
 
   const aggregators = [
     homePageAggregator,
-    userCredentialsAggregator
+    userCredentialsAggregator,
+    videoOperationsAggregator
   ]
 
   const components = [
     identityComponent, 
     sendEmailComponent,
+    videoPublishingComponent,
   ]
 
   return {
@@ -87,6 +98,7 @@ function createConfig({ env }) {
     userCredentialsAggregator,
     authenticateApp,
     sendEmailComponent,
+    videoPublishingComponent,
   }
 }
 
