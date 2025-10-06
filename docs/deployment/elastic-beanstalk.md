@@ -723,13 +723,22 @@ aws:elb:healthcheck:
   UnhealthyThreshold: '3'
 ```
 
-Add health check endpoint to your Express app:
+Add health check endpoint **inside** the `createExpressApp` function in `src/app/express/index.js`:
 
 ```javascript
-// In src/app/express/index.js
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy' })
-})
+function createExpressApp({ config, env }) {
+    const app = express();
+
+    mountMiddleware(app, env);
+    mountRoutes(app, config);
+
+    // Health check endpoint
+    app.get('/health', (req, res) => {
+      res.status(200).json({ status: 'healthy' })
+    })
+
+    return app;
+}
 ```
 
 ## Configuration

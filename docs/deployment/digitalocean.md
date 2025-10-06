@@ -173,22 +173,32 @@ Ensure proper start script and engine specification:
 
 #### 2. Add Health Check Endpoint
 
-Update `src/app/express/index.js`:
+Update `src/app/express/index.js` to add the health check endpoint **inside** the `createExpressApp` function:
 
 ```javascript
-// Health check endpoint for DigitalOcean
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString()
-  })
-})
+function createExpressApp({ config, env }) {
+    const app = express();
 
-// Also add root endpoint if not present
-app.get('/', (req, res) => {
-  res.redirect('/home')
-})
+    // Configure PUG
+    app.set("views", join(__dirname, ".."));
+    app.set("view engine", "pug");
+
+    mountMiddleware(app, env);
+    mountRoutes(app, config);
+
+    // Health check endpoint for cloud deployments
+    app.get('/health', (req, res) => {
+      res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+      })
+    })
+
+    return app;
+}
 ```
+
+**Important:** Add this endpoint **inside** the function, after `mountRoutes` and before `return app`.
 
 #### 3. Create .env.example
 
@@ -263,11 +273,12 @@ doctl databases create video-tutorials-message-store \
 
 **Via CLI:**
 ```bash
-# Get database IDs
+# List databases to get IDs
 doctl databases list
 
-# Get connection info
-doctl databases connection video-tutorials-app-db
+# Get connection info using the ID (UUID) from above
+# Example: doctl databases connection 5595d312-f85a-4d4c-bc2a-72ae6e1ff9f5
+doctl databases connection <DATABASE_ID>
 ```
 
 Save these for later:
@@ -276,26 +287,106 @@ DATABASE_URL=postgresql://doadmin:password@app-db.db.ondigitalocean.com:25060/de
 MESSAGE_STORE_URL=postgresql://doadmin:password@msg-db.db.ondigitalocean.com:25060/defaultdb?sslmode=require
 ```
 
-#### 4. Run Initial Migrations
+**Note:** The application requires TWO separate databases:
+- `DATABASE_URL` - For application data (users, pages, videos)
+- `MESSAGE_STORE_CONNECTION_STRING` - For event sourcing messages
 
-**Option A: Local migration (if you have connectivity):**
+#### Alternative: Single Database with Schemas (Cost Savings)
+
+To reduce costs, use one database with separate schemas instead of two databases:
+
+**1. Create single database:**
+```bash
+doctl databases create video-tutorials-db \
+  --engine pg \
+  --version 16 \
+  --size db-s-1vcpu-1gb \
+  --region nyc3
+```
+
+**2. Get connection details:**
+```bash
+# First, list databases to get the ID
+doctl databases list
+
+# Then get connection info using the ID (UUID)
+# Example: doctl databases connection 5595d312-f85a-4d4c-bc2a-72ae6e1ff9f5
+doctl databases connection <DATABASE_ID> --format Host,Port,User,Password,Database
+
+# Or get full connection string
+doctl databases connection <DATABASE_ID> --format URI
+```
+
+**3. Connect with psql and create schemas:**
+```bash
+# Get the connection URI from previous command, then:
+psql "postgresql://doadmin:password@db.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
+
+# Once connected, create schemas:
+CREATE SCHEMA IF NOT EXISTS app;
+CREATE SCHEMA IF NOT EXISTS message_store;
+
+# Verify schemas were created
+\dn
+
+# Exit psql
+\q
+```
+
+**Alternative: Create schemas via database management tool**
+1. In DigitalOcean Console, go to your database
+2. Click **Connection Details** → **Download CA Certificate**
+3. Use a tool like pgAdmin, DBeaver, or TablePlus to connect
+4. Run the `CREATE SCHEMA` commands
+
+**4. Configure connection strings:**
+
+After creating schemas, configure environment variables to use them:
 
 ```bash
-# Set environment variables locally
-export DATABASE_URL="postgresql://..."
-export MESSAGE_STORE_CONNECTION_STRING="postgresql://..."
+# Both point to same database but different schemas
+DATABASE_URL=postgresql://doadmin:password@db.db.ondigitalocean.com:25060/defaultdb?sslmode=require&search_path=app
+MESSAGE_STORE_CONNECTION_STRING=postgresql://doadmin:password@db.db.ondigitalocean.com:25060/defaultdb?sslmode=require&search_path=message_store
+```
+
+**Note:** The `search_path` parameter tells PostgreSQL which schema to use as the default for queries.
+
+**Savings:** $15/month (one database instead of two)
+
+**Trade-offs:**
+- ✅ Lower cost
+- ✅ Simpler backup/restore
+- ❌ Shared resource limits (CPU, memory, connections)
+- ❌ Cannot scale databases independently
+
+For production, separate databases are recommended. For development/staging, single database with schemas works well.
+
+#### 4. Run Initial Migrations
+
+The application needs a `knexfile.js` configuration file to run migrations. Find this in the project root.
+
+**Note on SSL:** DigitalOcean managed databases use SSL certificates. The `knexfile.js` is configured with `rejectUnauthorized: false` to accept these certificates. For production, consider downloading the CA certificate from DigitalOcean Console → Database → Connection Details → Download CA Certificate.
+
+**Run migrations for application database:**
+
+```bash
+# Set DATABASE_URL environment variable
+export DATABASE_URL="postgresql://doadmin:password@app-db.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
 
 # Run migrations
 npx knex migrate:latest
 ```
 
-**Option B: Use DigitalOcean console:**
-```bash
-# Connect via console
-doctl databases sql video-tutorials-app-db
+**If you see SSL certificate errors:**
+The `knexfile.js` should handle this automatically. If issues persist, ensure the connection string includes `?sslmode=require`.
 
-# Run migration SQL manually (if needed)
-```
+**For message store database:**
+
+The message store is an event sourcing system from the "Practical Microservices" book. It requires specific functions and tables. If following the book, the message store schema should be set up according to the book's instructions (typically involves SQL functions for writing/reading events).
+
+For a basic setup, the message store database can be empty initially - the application will write events to it. However, for the full implementation, refer to the [Practical Microservices book](https://pragprog.com/titles/egmicro) for the complete message store database setup.
+
+**Note:** The migrations in `./migrations/` are for the **application database only** (pages, users, videos tables). The message store uses a different schema.
 
 ### Phase 3: Create App on DigitalOcean
 
@@ -626,18 +717,15 @@ Databases:
 Total: ~$35/month
 ```
 
-**Use single database with schemas:**
-```sql
--- In single database, create schemas
-CREATE SCHEMA app;
-CREATE SCHEMA message_store;
+**Use single database with schemas** (see Phase 2 alternative setup above):
+- Creates `app` and `message_store` schemas in one database
+- Connection strings use `search_path` parameter
+- **Saves $15/month** ($15 total vs $30 for two databases)
 
--- Update connection strings
-DATABASE_URL=postgresql://.../ defaultdb?schema=app
-MESSAGE_STORE_URL=postgresql://.../defaultdb?schema=message_store
-```
-
-Saves $15/month.
+**Recommended for:**
+- Development/staging environments
+- Cost-constrained projects
+- Applications with low-moderate traffic
 
 ### Production Optimization
 

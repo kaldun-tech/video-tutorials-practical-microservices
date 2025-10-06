@@ -10,24 +10,19 @@ function createExpressApp( { config, env }) {
     // Configure PUG
     app.set("views", join(__dirname, ".."));
     app.set("view engine", "pug");
-    
+
     mountMiddleware(app, env);
     mountRoutes(app, config);
 
+    // Health check endpoint for cloud deployments
+    app.get('/health', (req, res) => {
+      res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+      })
+    })
+
     return app;
 }
-
-// Health check endpoint for DigitalOcean
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString()
-  })
-})
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.redirect('/home')
-})
 
 module.exports = createExpressApp;

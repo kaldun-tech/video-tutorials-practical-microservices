@@ -330,32 +330,29 @@ build/
 
 #### 3. Add Health Check Endpoint
 
-Update `src/app/express/index.js`:
+Update `src/app/express/index.js` to add health check **inside** the `createExpressApp` function:
 
 ```javascript
-// Add health check endpoint
-app.get('/health', (req, res) => {
-  // Check database connectivity
-  const dbCheck = knexClient.raw('SELECT 1')
-  const msgStoreCheck = postgresClient.query('SELECT 1')
+function createExpressApp({ config, env }) {
+    const app = express();
 
-  Promise.all([dbCheck, msgStoreCheck])
-    .then(() => {
+    mountMiddleware(app, env);
+    mountRoutes(app, config);
+
+    // Health check endpoint for ECS
+    app.get('/health', (req, res) => {
       res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
       })
     })
-    .catch(err => {
-      console.error('Health check failed:', err)
-      res.status(503).json({
-        status: 'unhealthy',
-        error: err.message
-      })
-    })
-})
+
+    return app;
+}
 ```
+
+**Note:** For production, you could add database connectivity checks, but a simple health check is sufficient for container health monitoring.
 
 #### 4. Test Docker Build Locally
 

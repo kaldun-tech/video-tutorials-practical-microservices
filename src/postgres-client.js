@@ -10,7 +10,17 @@ const Bluebird = require('bluebird')
 const pg = require('pg')
 
 function createDatabase ({ connectionString }) {
-  const client = new pg.Client({ connectionString, Promise: Bluebird })
+  // Parse connection string to handle SSL properly
+  const url = new URL(connectionString)
+
+  // Remove sslmode parameter if present (we'll handle SSL via config)
+  url.searchParams.delete('sslmode')
+
+  const client = new pg.Client({
+    connectionString: url.toString(),
+    ssl: { rejectUnauthorized: false },
+    Promise: Bluebird
+  })
 
   let connectedClient = null
 
