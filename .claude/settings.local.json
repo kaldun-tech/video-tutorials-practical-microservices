@@ -4,7 +4,8 @@
       "Bash(npm init:*)",
       "Bash(npm install:*)",
       "Bash(mkdir:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

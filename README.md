@@ -73,9 +73,53 @@ Note: The project uses blue-tape for testing. The main test file is located at `
     - `express/` - Express.js server setup
     - `home/` - Home page functionality and tests
     - `record-viewings/` - Video viewing recording functionality
+    - `register-users/` - User registration functionality
+    - `authenticate/` - Authentication functionality
+  - `aggregators/` - Event aggregators
+    - `home-page/` - Home page data aggregation
+    - `user-credentials/` - User credentials aggregation
+    - `video-operations/` - Video operations aggregation
+  - `components/` - Microservices components
+    - `identity/` - Identity management
+    - `send-email/` - Email sending component
+    - `video-publishing/` - Video publishing component
+  - `message-store/` - Message store implementation
   - `bin/` - Executable scripts
   - `config.js` - Application configuration
   - `env.js` - Environment variable handling
   - `knex-client.js` - Database client setup
+  - `postgres-client.js` - PostgreSQL client for message store
 - `migrations/` - Database migration files
 - `public/` - Static assets (CSS, JS, images)
+- `docs/` - Documentation
+  - `deployment/` - **Deployment guides for AWS, DigitalOcean**
+
+## Deployment
+
+This application can be deployed to various cloud platforms. Comprehensive deployment guides are available:
+
+### 📚 [Deployment Documentation](./docs/deployment/README.md)
+
+Choose your deployment platform based on your goals:
+
+| Platform | Setup Time | Monthly Cost | Best For |
+|----------|------------|--------------|----------|
+| **[AWS Elastic Beanstalk](./docs/deployment/elastic-beanstalk.md)** | 4-6 hours | ~$65-175 | Quick AWS deployment, Heroku alternative |
+| **[AWS ECS Fargate](./docs/deployment/ecs-fargate.md)** | 20-30 hours | ~$100-225 | **AWS portfolio building**, production microservices |
+| **[DigitalOcean](./docs/deployment/digitalocean.md)** | 2-4 hours | ~$40-130 | Simplicity, cost-effectiveness, MVPs |
+
+### Quick Decision Guide
+
+```mermaid
+graph TD
+    A[Choose Deployment] --> B{Primary Goal?}
+    B -->|AWS Portfolio| C[AWS ECS Fargate]
+    B -->|Quick AWS Start| D[AWS Elastic Beanstalk]
+    B -->|Simplicity & Cost| E[DigitalOcean]
+
+    style C fill:#ff9900
+    style D fill:#ff9900
+    style E fill:#0080ff
+```
+
+**See [Platform Comparison Guide](./docs/deployment/comparison.md)** for detailed cost analysis, architecture diagrams, and trade-offs.
