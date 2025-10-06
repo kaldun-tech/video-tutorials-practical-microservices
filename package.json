@@ -8,8 +8,8 @@
     "npm": "10.x"
   },
   "scripts": {
-    "start": "node src/app/express/index.js",
-    "dev": "nodemon src/app/express/index.js",
+    "start": "node src/bin/start-server.js",
+    "dev": "nodemon src/bin/start-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-dev-server": "nodemon src/bin/start-server.js --color",
     "build": "echo 'No build needed'",
