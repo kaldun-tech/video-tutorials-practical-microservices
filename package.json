@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "description": "Video tutorials app from Practical Microservices by Ethan Garafolo",
   "main": "src/app/express/index.js",
+  "engines": {
+    "node": "20.11.0",
+    "npm": "10.x"
+  },
   "scripts": {
     "start": "node src/app/express/index.js",
     "dev": "nodemon src/app/express/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-dev-server": "nodemon src/bin/start-server.js --color"
+    "start-dev-server": "nodemon src/bin/start-server.js --color",
+    "build": "echo 'No build needed'",
+    "migrate": "npx knex migrate:latest"
   },
   "keywords": [],
   "author": "",

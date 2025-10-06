@@ -17,4 +17,17 @@ function createExpressApp( { config, env }) {
     return app;
 }
 
+// Health check endpoint for DigitalOcean
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  })
+})
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.redirect('/home')
+})
+
 module.exports = createExpressApp;
