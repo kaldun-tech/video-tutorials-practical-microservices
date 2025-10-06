@@ -770,7 +770,21 @@ doctl apps logs YOUR_APP_ID --type build
    - Verify Node version in `engines`
    - Check for private dependencies
 
-2. **Port mismatch:**
+2. **Missing .env file error:**
+   - **Error:** `[ERROR] env failed to load: Error: ENOENT: no such file or directory, open '/workspace/.env'`
+   - **Cause:** Application looks for `.env` file but App Platform uses environment variables
+   - **Solution:** The `src/env.js` file has been updated to not require `.env` file. Environment variables set in App Platform console are used instead.
+   - **Action:** Ensure all required environment variables are set in Settings → Environment Variables:
+     - `APP_NAME`
+     - `NODE_ENV`
+     - `PORT`
+     - `COOKIE_SECRET`
+     - `DATABASE_URL`
+     - `MESSAGE_STORE_CONNECTION_STRING`
+     - `EMAIL_DIRECTORY`
+     - `SYSTEM_SENDER_EMAIL_ADDRESS`
+
+3. **Port mismatch:**
    - App must listen on `PORT` env variable (8080)
    - Check `src/app/express/index.js`:
    ```javascript

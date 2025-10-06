@@ -15,11 +15,9 @@ const envResult = dotenv.config()
 
 if (envResult.error) {
   // eslint-disable-next-line no-console
-  console.error(
-    `${colors.red('[ERROR] env failed to load:')} ${envResult.error}`
+  console.log(
+    colors.yellow('[WARN] .env file not found, using environment variables from platform')
   )
-
-  process.exit(1)
 }
 
 function requireFromEnv (key) {
