@@ -15,9 +15,9 @@ const identityProjection = {
       registrationEmailSent: false
     }
   },
-  Registered (identity, registered) {
-    identity.id = registered.data.userId
-    identity.email = registered.data.email
+  Registered (identity, event) {
+    identity.id = event.data.userId
+    identity.email = event.data.email
     identity.isRegistered = true
 
     return identity

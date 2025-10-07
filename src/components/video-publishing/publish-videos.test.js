@@ -154,12 +154,11 @@ test('Writes a VideoPublishingFailed event when publishing fails', t => {
 
   return videoPublishingComponent.handlers.PublishVideo(command)
     .then(() => // (4)
-      config.messageStore.read(`videoPublishing-${videoId}`)
-        .then(messages => { // (5)
-          t.equal(messages.length, 1, '1 event written')
+      config.messageStore.read(`videoPublishing-${videoId}`).then(messages => { // (5)
+        t.equal(messages.length, 1, '1 event written')
 
-          t.equal(messages[0].type, 'VideoPublishingFailed', 'It failed')
-          t.equal(messages[0].data.reason, 'No can haz fetch')
-        })
+        t.equal(messages[0].type, 'VideoPublishingFailed', 'It failed')
+        t.equal(messages[0].data.reason, 'No can haz fetch')
+      })
     )
 })

@@ -6,7 +6,7 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-// This code was taken from https://github.com/sindresorhus/camelcase.
+// This code was taken from https://github.com/sindresorhus/quick-lru
 // The package maintainer switch it to ESM, and we elected not to follow suit.
 
 class QuickLRU extends Map {

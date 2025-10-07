@@ -6,11 +6,12 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-function lastResortErrorHandler (err, req, res, next) {
-  const traceId = req.context ? req.context.traceId : 'none'
-  console.error(traceId, err)
+function mustBeLoggedIn (req, res, next) {
+  if (!req.context.userId) {
+    return res.redirect('/auth/log-in')
+  }
 
-  res.status(500).send('error')
+  return next()
 }
 
-module.exports = lastResortErrorHandler
+module.exports = mustBeLoggedIn

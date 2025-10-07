@@ -4,44 +4,51 @@
  * Copyrights apply to this code. It may not be used to create training material,
  * courses, books, articles, and the like. Contact us if you are in doubt.
  * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
+ * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
 const express = require('express')
+
 const camelCaseKeys = require('../../camelcase/camelcase-keys')
+function createHandlers ({ queries }) {
+  function home (req, res, next) {
+    return queries
+      .loadHomePage()
+      .then(homePageData =>
+        res.render('home/templates/home', homePageData.pageData)
+      )
+      .catch(next)
+  }
 
-function createHandlers({ queries }) {
-    function home(req, res, next) {
-        return queries
-        .loadHomePage()
-        .then(viewData =>
-            res.render('home/templates/home', viewData)
-        )
-        .catch(next)
-    }
-
-    return { home }
+  return {
+    home
+  }
 }
 
 function createQueries ({ db }) {
-    function loadHomePage () {
-        return db.then(client =>
-            client('pages')
-                .where({ page_name: 'home' })
-                .limit(1)
-                .then(camelCaseKeys)
-                .then(rows => rows[0])
-        )
-    }
-    return { loadHomePage }
+  function loadHomePage () {
+    return db.then(client =>
+      client('pages')
+        .where({ page_name: 'home' })
+        .limit(1)
+        .then(camelCaseKeys)
+        .then(rows => rows[0])
+    )
+  }
+
+  return {
+    loadHomePage
+  }
 }
 
 function createHome ({ db }) {
-    const queries = createQueries({ db })
-    const handlers = createHandlers({ queries })
+  const queries = createQueries({ db })
+  const handlers = createHandlers({ queries })
 
-    const router = express.Router()
-    router.route('/').get(handlers.home)
-    return { handlers, queries, router }
+  const router = express.Router()
+
+  router.route('/').get(handlers.home)
+
+  return { handlers, queries, router }
 }
 
 module.exports = createHome

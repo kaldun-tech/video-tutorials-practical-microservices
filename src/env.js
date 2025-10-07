@@ -4,7 +4,7 @@
  * Copyrights apply to this code. It may not be used to create training material,
  * courses, books, articles, and the like. Contact us if you are in doubt.
  * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
+ * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
 const colors = require('colors/safe')
 const dotenv = require('dotenv')
@@ -15,9 +15,11 @@ const envResult = dotenv.config()
 
 if (envResult.error) {
   // eslint-disable-next-line no-console
-  console.log(
-    colors.yellow('[WARN] .env file not found, using environment variables from platform')
+  console.error(
+    `${colors.red('[ERROR] env failed to load:')} ${envResult.error}`
   )
+
+  process.exit(1)
 }
 
 function requireFromEnv (key) {
@@ -32,14 +34,14 @@ function requireFromEnv (key) {
 }
 
 module.exports = {
-    appName: requireFromEnv('APP_NAME'),
-    cookieSecret: requireFromEnv('COOKIE_SECRET'),
-    databaseUrl: requireFromEnv('DATABASE_URL'),
-    emailDirectory: requireFromEnv('EMAIL_DIRECTORY'),
-    systemSenderEmailAddress: requireFromEnv('SYSTEM_SENDER_EMAIL_ADDRESS'),
-    env: requireFromEnv('NODE_ENV'),
-    port: parseInt(requireFromEnv('PORT'), 10),
-    version: packageJson.version,
-    messageStoreConnectionString:
-      requireFromEnv('MESSAGE_STORE_CONNECTION_STRING')
+  appName: requireFromEnv('APP_NAME'),
+  cookieSecret: requireFromEnv('COOKIE_SECRET'),
+  databaseUrl: requireFromEnv('DATABASE_URL'),
+  env: requireFromEnv('NODE_ENV'),
+  port: parseInt(requireFromEnv('PORT'), 10),
+  emailDirectory: requireFromEnv('EMAIL_DIRECTORY'),
+  systemSenderEmailAddress: requireFromEnv('SYSTEM_SENDER_EMAIL_ADDRESS'),
+  version: packageJson.version,
+  messageStoreConnectionString:
+    requireFromEnv('MESSAGE_STORE_CONNECTION_STRING')
 }

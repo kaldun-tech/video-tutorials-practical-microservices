@@ -1,18 +1,18 @@
-const express = require("express");
-const {join} = require("path");
+const express = require("express")
+const {join} = require("path")
 
-const mountMiddleware = require("./middleware");
-const mountRoutes = require("./routes");
+const mountMiddleware = require("./middleware")
+const mountRoutes = require("./routes")
 
 function createExpressApp( { config, env }) {
-    const app = express();
+    const app = express()
 
     // Configure PUG
-    app.set("views", join(__dirname, ".."));
-    app.set("view engine", "pug");
+    app.set("views", join(__dirname, ".."))
+    app.set("view engine", "pug")
 
-    mountMiddleware(app, env);
-    mountRoutes(app, config);
+    mountMiddleware(app, env)
+    mountRoutes(app, config)
 
     // Health check endpoint for cloud deployments
     app.get('/health', (req, res) => {
@@ -22,7 +22,7 @@ function createExpressApp( { config, env }) {
       })
     })
 
-    return app;
+    return app
 }
 
-module.exports = createExpressApp;
+module.exports = createExpressApp

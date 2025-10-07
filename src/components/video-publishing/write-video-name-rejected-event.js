@@ -31,8 +31,7 @@ function writeVideoNameRejectedEvent (context, reason) {
   }
   const streamName = `videoPublishing-${command.data.videoId}`
 
-  return messageStore.write(streamName, VideoNameRejectedEvent)
-    .then(() => context)
+  return messageStore.write(streamName, VideoNameRejectedEvent).then(() => context)
 }
 
 module.exports = writeVideoNameRejectedEvent
