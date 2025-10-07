@@ -113,6 +113,7 @@ function createConfig ({ env }) {
 
   const components = [
     identityComponent,
+    sendEmailComponent,
     videoPublishingComponent
   ]
 

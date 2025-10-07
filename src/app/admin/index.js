@@ -251,6 +251,7 @@ function createAdminApplication ({ db, messageStoreDb }) {
   router
     .route('/correlated-messages/:traceId')
     .get(handlers.handleCorrelatedMessagesIndex)
+
   router.route('/user-messages/:userId').get(handlers.handleUserMessagesIndex)
   router.route('/streams/:streamName').get(handlers.handleShowStream)
   router.route('/streams').get(handlers.handleStreamsIndex)
