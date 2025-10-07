@@ -6,14 +6,6 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/***
- * Excerpted from "Practical Microservices",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
-***/
 const express = require('express')
 
 const camelCaseKeys = require('../../camelcase/camelcase-keys')
@@ -28,20 +20,20 @@ function createHandlers ({ queries }) {
   }
 
   function handleShowUser (req, res) {
-    const userPromise = queries.user(req.params.id) // (1)
+    const userPromise = queries.user(req.params.id)
     const loginEventsPromise = queries.userLoginEvents(req.params.id)
     const viewingEventsPromise = queries.userViewingEvents(req.params.id)
 
-    return Promise.all([ // (2)
+    return Promise.all([
       userPromise,
       loginEventsPromise,
       viewingEventsPromise
     ]).then(values => {
-      const user = values[0] // (3)
+      const user = values[0]
       const loginEvents = values[1]
       const viewingEvents = values[2]
 
-      return res.render('admin/templates/user', { // (4)
+      return res.render('admin/templates/user', {
         user: user,
         loginEvents: loginEvents,
         viewingEvents: viewingEvents
@@ -256,11 +248,9 @@ function createAdminApplication ({ db, messageStoreDb }) {
 
   router.route('/messages/:id').get(handlers.handleShowMessage)
   router.route('/messages').get(handlers.handleMessagesIndex)
-  // ...
   router
     .route('/correlated-messages/:traceId')
     .get(handlers.handleCorrelatedMessagesIndex)
-  // ...
   router.route('/user-messages/:userId').get(handlers.handleUserMessagesIndex)
   router.route('/streams/:streamName').get(handlers.handleShowStream)
   router.route('/streams').get(handlers.handleStreamsIndex)
