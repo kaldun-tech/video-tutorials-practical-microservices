@@ -5,7 +5,8 @@
       "Bash(npm install:*)",
       "Bash(mkdir:*)",
       "Bash(npm uninstall:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

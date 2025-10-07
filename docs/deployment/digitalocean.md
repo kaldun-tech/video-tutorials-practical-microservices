@@ -382,11 +382,23 @@ The `knexfile.js` should handle this automatically. If issues persist, ensure th
 
 **For message store database:**
 
-The message store is an event sourcing system from the "Practical Microservices" book. It requires specific functions and tables. If following the book, the message store schema should be set up according to the book's instructions (typically involves SQL functions for writing/reading events).
+The message store uses **Message DB** - a PostgreSQL-based event store. Install the schema:
 
-For a basic setup, the message store database can be empty initially - the application will write events to it. However, for the full implementation, refer to the [Practical Microservices book](https://pragprog.com/titles/egmicro) for the complete message store database setup.
+```bash
+# Set MESSAGE_STORE_CONNECTION_STRING environment variable
+export MESSAGE_STORE_CONNECTION_STRING="postgresql://doadmin:password@msg-db.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
 
-**Note:** The migrations in `./migrations/` are for the **application database only** (pages, users, videos tables). The message store uses a different schema.
+# Install Message DB schema (creates message_store schema, tables, and functions)
+npm run install-message-store
+```
+
+This creates:
+- `message_store` schema
+- `messages` table
+- `write_message()` function
+- Event reading functions and views
+
+**Note:** The migrations in `./migrations/` are for the **application database only** (pages, users, videos tables). The message store uses the Message DB schema installed above.
 
 ### Phase 3: Create App on DigitalOcean
 

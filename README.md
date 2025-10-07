@@ -27,12 +27,25 @@ Visit https://pragprog.com/titles/egmicro for more book information.
    PORT=3000
    ```
 
-3. Set up the database:
+3. Set up the databases:
+
+   **Application Database:**
    - Create a PostgreSQL database named `video_tutorials`
    - Run migrations:
      ```bash
      npx knex migrate:latest
      ```
+
+   **Message Store Database:**
+   - Create a PostgreSQL database named `message_store`
+   - Install Message DB schema:
+     ```bash
+     MESSAGE_STORE_CONNECTION_STRING=postgresql://username:password@localhost:5432/message_store npm run install-message-store
+     ```
+
+   **Note:** The application requires TWO databases:
+   - `DATABASE_URL` - Application data (users, videos, pages)
+   - `MESSAGE_STORE_CONNECTION_STRING` - Event sourcing messages
 
 ## Running the Application
 
