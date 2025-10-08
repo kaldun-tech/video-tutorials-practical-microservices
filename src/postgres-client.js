@@ -16,11 +16,19 @@ function createDatabase ({ connectionString }) {
   // Remove sslmode parameter if present (we'll handle SSL via config)
   url.searchParams.delete('sslmode')
 
-  const client = new pg.Client({
+  // Only use SSL for remote connections (not localhost)
+  const useSSL = !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1')
+
+  const clientConfig = {
     connectionString: url.toString(),
-    ssl: { rejectUnauthorized: false },
     Promise: Bluebird
-  })
+  }
+
+  if (useSSL) {
+    clientConfig.ssl = { rejectUnauthorized: false }
+  }
+
+  const client = new pg.Client(clientConfig)
 
   let connectedClient = null
 
