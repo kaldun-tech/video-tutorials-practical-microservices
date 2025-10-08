@@ -17,8 +17,8 @@
 const test = require('blue-tape')
 const uuid = require('uuid').v4
 
-const { config, reset } = require('../test-helper')
 const camelCaseKeys = require('../camelcase/camelcase-keys')
+const { config, reset } = require('../test-helper')
 
 test('It aggregates the stream names', t => {
   const event1 = {

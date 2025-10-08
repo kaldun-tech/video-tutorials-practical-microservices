@@ -19,8 +19,8 @@ const test = require('blue-tape')
 const snakeCaseKeys = require('snakecase-keys')
 const uuid = require('uuid').v4
 
-const { config, reset } = require('../test-helper')
 const camelCaseKeys = require('../camelcase/camelcase-keys')
+const { config, reset } = require('../test-helper')
 
 test('Handling a VideoPublished event', t => {
   const traceId = uuid()
