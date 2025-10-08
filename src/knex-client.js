@@ -10,19 +10,21 @@ const Bluebird = require('bluebird')
 const knex = require('knex')
 
 function createKnexClient ({ connectionString, migrationsTableName }) {
-  // Only use SSL for remote connections (not localhost)
-  const useSSL = !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1')
+  // Detect if we need SSL based on connection string
+  // Use SSL for remote connections, skip for localhost
+  const isLocalhost = connectionString.includes('localhost') ||
+                      connectionString.includes('127.0.0.1') ||
+                      connectionString.includes('@localhost:') ||
+                      connectionString.includes('@127.0.0.1:')
+
+  const useSSL = !isLocalhost
 
   const config = {
     client: 'pg',
-    connection: connectionString
-  }
-
-  if (useSSL) {
-    config.connection = {
+    connection: useSSL ? {
       connectionString: connectionString,
       ssl: { rejectUnauthorized: false }
-    }
+    } : connectionString
   }
 
   const client = knex(config)

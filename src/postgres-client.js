@@ -13,11 +13,18 @@ function createDatabase ({ connectionString }) {
   // Parse connection string to handle SSL properly
   const url = new URL(connectionString)
 
-  // Remove sslmode parameter if present (we'll handle SSL via config)
+  // Remove sslmode and ssl parameters if present (we'll handle SSL via config)
   url.searchParams.delete('sslmode')
+  url.searchParams.delete('ssl')
 
-  // Only use SSL for remote connections (not localhost)
-  const useSSL = !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1')
+  // Detect if we need SSL based on connection string
+  // Use SSL for remote connections, skip for localhost
+  const isLocalhost = connectionString.includes('localhost') ||
+                      connectionString.includes('127.0.0.1') ||
+                      connectionString.includes('@localhost:') ||
+                      connectionString.includes('@127.0.0.1:')
+
+  const useSSL = !isLocalhost
 
   const clientConfig = {
     connectionString: url.toString(),

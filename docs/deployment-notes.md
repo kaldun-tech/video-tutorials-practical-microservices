@@ -203,9 +203,27 @@ psql "${MESSAGE_STORE_CONNECTION_STRING}" -c "SELECT message_store.message_store
 - [DigitalOcean Managed PostgreSQL Docs](https://docs.digitalocean.com/products/databases/postgresql/)
 - [Knex.js Migrations](https://knexjs.org/guide/migrations.html)
 
+## Recent Updates (2025-10-08)
+
+### SSL Connection Improvements
+Updated both `src/knex-client.js` and `src/postgres-client.js` to automatically detect local vs remote connections:
+- **Local connections** (localhost/127.0.0.1): SSL disabled
+- **Remote connections** (DigitalOcean, etc.): SSL enabled with `rejectUnauthorized: false`
+- Also removes `?sslmode=require&ssl=true` query parameters that can interfere with connection
+
+### Categories Feature Added
+Added new admin portal feature at `/admin/categories`:
+- Lists all message categories with message counts
+- Click through to view messages by category
+- Follows existing patterns for streams and messages
+
+### Creators Portal Route Added
+Mounted creators portal at `/creators-portal` - was implemented but not connected to routes
+
 ## TODO / Outstanding Issues
 
-- [ ] Resolve remaining SSL certificate errors in deployment logs
+- [x] Resolve SSL certificate errors - Fixed with improved localhost detection
+- [ ] **CRITICAL**: Install message-db schema on DigitalOcean database (see Installation Steps above)
 - [ ] Verify all aggregators and components start successfully
 - [ ] Test full application functionality in production
 - [ ] Consider using DigitalOcean's CA certificate instead of disabling certificate verification
