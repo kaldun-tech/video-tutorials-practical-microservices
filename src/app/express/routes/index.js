@@ -16,6 +16,7 @@ function mountRoutes (app, config) {
     app.use('/record-viewing', config.recordViewingsApp.router)
     app.use('/register', config.registerUsersApp.router)
     app.use('/auth', config.authenticateApp.router)
+    app.use('/creators-portal', config.creatorsPortalApp.router)
 
     app.route('/admin').get((req, res) => res.redirect('/admin/users'))
     app.use('/admin', config.adminApp.router)
