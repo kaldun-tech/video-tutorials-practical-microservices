@@ -8,7 +8,7 @@
 ***/
 const deserializeMessage = require('./deserialize-message')
 
-const getLastMessageSql = 'SELECT * FROM get_last_stream_message($1::varchar)'
+const getLastMessageSql = 'SELECT * FROM get_last_stream_message($1::varchar, $2::varchar)'
 const getCategoryMessagesSql = 'SELECT * FROM get_category_messages($1::varchar, $2::bigint, $3::bigint)'
 const getStreamMessagesSql = 'SELECT * FROM get_stream_messages($1::varchar, $2::bigint, $3::bigint)'
 const getAllMessagesSql = `
@@ -101,7 +101,7 @@ function createRead ({ db }) {
    * @returns {Promise<object} A Promise resolving to the last message
    */
   function readLastMessage (streamName) {
-    return db.query(getLastMessageSql, [ streamName ])
+    return db.query(getLastMessageSql, [ streamName, null ])
       .then(res => deserializeMessage(res.rows[0]))
   }
 
