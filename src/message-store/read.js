@@ -8,9 +8,9 @@
 ***/
 const deserializeMessage = require('./deserialize-message')
 
-const getLastMessageSql = 'SELECT * FROM get_last_stream_message($1)'
-const getCategoryMessagesSql = 'SELECT * FROM get_category_messages($1, $2, $3)'
-const getStreamMessagesSql = 'SELECT * FROM get_stream_messages($1, $2, $3)'
+const getLastMessageSql = 'SELECT * FROM get_last_stream_message($1::varchar)'
+const getCategoryMessagesSql = 'SELECT * FROM get_category_messages($1::varchar, $2::bigint, $3::bigint)'
+const getStreamMessagesSql = 'SELECT * FROM get_stream_messages($1::varchar, $2::bigint, $3::bigint)'
 const getAllMessagesSql = `
   SELECT 
     id::varchar,
