@@ -6,21 +6,13 @@
  * We make no guarantees that this code is fit for any purpose.
  * Visit https://pragprog.com/titles/egmicro for more book information.
 ***/
-/***
- * Excerpted from "Practical Microservices",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/egmicro for more book information.
-***/
 const test = require('blue-tape')
 const uuid = require('uuid').v4
 
 const { config, reset } = require('../test-helper')
 
 test('It aggregates a VideoViewed event', t => {
-  const userId = uuid() // (1)
+  const userId = uuid()
   const videoId = uuid()
   const videoViewedEvent = {
     id: uuid(),
@@ -36,10 +28,10 @@ test('It aggregates a VideoViewed event', t => {
     globalPosition: 1
   }
 
-  return ( // (2)
+  return (
     reset()
       .then(() => config.homePageAggregator.init())
-      .then(() => // (3)
+      .then(() =>
         config.homePageAggregator.handlers.VideoViewed(videoViewedEvent)
       )
       // Call it a second time to verify idempotence
@@ -47,7 +39,7 @@ test('It aggregates a VideoViewed event', t => {
         config.homePageAggregator.handlers.VideoViewed(videoViewedEvent)
       )
       .then(() =>
-        config.db.then(client =>  // (4)
+        config.db.then(client =>
           client('pages')
             .where({ page_name: 'home' })
             .then(homePageData => {

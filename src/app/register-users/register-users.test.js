@@ -74,7 +74,7 @@ test('Issues the registration command when user submits good data ', t => {
 
 
 
-  return supertest(app) // (2)
+  return supertest(app)
     .post('/register')
     .type('form')
     .send(attributes)
@@ -82,7 +82,7 @@ test('Issues the registration command when user submits good data ', t => {
     .then(res => {
       t.assert(res.headers.location.includes('registration-complete'))
     })
-    .then(() => // (3)
+    .then(() =>
       config.messageStore
         .read(`identity:command-${userId}`)
         .then(retrievedMessages => {
