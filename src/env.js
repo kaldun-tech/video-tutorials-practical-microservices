@@ -13,7 +13,7 @@ const packageJson = require('../package.json')
 
 const envResult = dotenv.config()
 
-if (envResult.error) {
+if (envResult.error && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line no-console
   console.error(
     `${colors.red('[ERROR] env failed to load:')} ${envResult.error}`
