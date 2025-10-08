@@ -41,7 +41,7 @@ if (!fs.existsSync(messageDbPath)) {
   process.exit(1)
 }
 
-const installScriptPath = path.join(messageDbPath, 'install.sh')
+const installScriptPath = path.join(messageDbPath, 'database', 'install.sh')
 
 if (!fs.existsSync(installScriptPath)) {
   console.error('ERROR: install.sh script not found in @eventide/message-db package')
@@ -49,14 +49,61 @@ if (!fs.existsSync(installScriptPath)) {
 }
 
 try {
-  // Make script executable
-  fs.chmodSync(installScriptPath, '755')
+  // Parse connection string to extract database name
+  const url = new URL(connectionString)
+  const database = url.pathname.slice(1) // Remove leading /
 
-  // Run the installation script
-  console.log('Running Message DB installation script...')
-  execSync(`DATABASE_URL="${connectionString}" bash "${installScriptPath}"`, {
-    stdio: 'inherit',
-    cwd: messageDbPath
+  const dbPath = path.join(messageDbPath, 'database')
+
+  // Set environment variables for psql connection
+  const env = {
+    ...process.env,
+    PGHOST: url.hostname,
+    PGPORT: url.port || '5432',
+    PGUSER: url.username,
+    PGPASSWORD: url.password,
+    PGDATABASE: database,
+    PGSSLMODE: 'require'
+  }
+
+  console.log('Installing message_store schema...')
+
+  // Run SQL files in order (skip role creation for managed DB)
+  const sqlFiles = [
+    'extensions/pgcrypto.sql',
+    'schema/message-store.sql',
+    'types/message.sql',
+    'tables/messages.sql'
+  ]
+
+  sqlFiles.forEach(file => {
+    const filePath = path.join(dbPath, file)
+    console.log(`  Installing ${file}...`)
+    execSync(`psql -q -v ON_ERROR_STOP=1 -f "${filePath}"`, { env, stdio: 'inherit' })
+  })
+
+  // Install functions
+  console.log('  Installing functions...')
+  const functionsDir = path.join(dbPath, 'functions')
+  const functions = fs.readdirSync(functionsDir).filter(f => f.endsWith('.sql'))
+  functions.forEach(file => {
+    execSync(`psql -q -v ON_ERROR_STOP=1 -f "${path.join(functionsDir, file)}"`, { env, stdio: 'pipe' })
+  })
+
+  // Install indexes
+  console.log('  Installing indexes...')
+  const indexesDir = path.join(dbPath, 'indexes')
+  const indexes = fs.readdirSync(indexesDir).filter(f => f.endsWith('.sql'))
+  indexes.forEach(file => {
+    execSync(`psql -q -v ON_ERROR_STOP=1 -f "${path.join(indexesDir, file)}"`, { env, stdio: 'pipe' })
+  })
+
+  // Install views
+  console.log('  Installing views...')
+  const viewsDir = path.join(dbPath, 'views')
+  const views = fs.readdirSync(viewsDir).filter(f => f.endsWith('.sql'))
+  views.forEach(file => {
+    execSync(`psql -q -v ON_ERROR_STOP=1 -f "${path.join(viewsDir, file)}"`, { env, stdio: 'pipe' })
   })
 
   console.log('✓ Message DB schema installed successfully')
