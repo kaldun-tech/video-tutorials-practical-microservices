@@ -107,6 +107,27 @@ function createHandlers ({ queries }) {
       )
   }
 
+  function handleCategoriesIndex (req, res) {
+    return queries
+      .categories()
+      .then(categories =>
+        res.render('admin/templates/categories-index', { categories })
+      )
+  }
+
+  function handleCategoryMessages (req, res) {
+    const category = req.params.category
+
+    return queries
+      .categoryMessages(category)
+      .then(messages =>
+        res.render('admin/templates/messages-index', {
+          messages,
+          title: `Category: ${category}`
+        })
+      )
+  }
+
   return {
     handleUsersIndex,
     handleShowUser,
@@ -116,7 +137,9 @@ function createHandlers ({ queries }) {
     handleShowStream,
     handleShowMessage,
     handleStreamsIndex,
-    handleSubscriberPositions
+    handleSubscriberPositions,
+    handleCategoriesIndex,
+    handleCategoryMessages
   }
 }
 
@@ -223,6 +246,40 @@ function createQueries ({ db, messageStoreDb }) {
     )
   }
 
+  function categories () {
+    return messageStoreDb.query(
+      `
+        SELECT
+          SPLIT_PART(stream_name, '-', 1) as category,
+          COUNT(*) as message_count
+        FROM
+          messages
+        GROUP BY
+          category
+        ORDER BY
+          category ASC
+      `
+    )
+      .then(res => res.rows)
+      .then(camelCaseKeys)
+  }
+
+  function categoryMessages (category) {
+    return messageStoreDb.query(
+      `
+        SELECT
+          *
+        FROM
+          messages
+        WHERE category(stream_name) = $1
+        ORDER BY global_position ASC
+      `,
+      [category]
+    )
+      .then(res => res.rows)
+      .then(camelCaseKeys)
+  }
+
   return {
     usersIndex,
     user,
@@ -233,7 +290,9 @@ function createQueries ({ db, messageStoreDb }) {
     streamName,
     message,
     streams,
-    subscriberPositions
+    subscriberPositions,
+    categories,
+    categoryMessages
   }
 }
 
@@ -255,6 +314,9 @@ function createAdminApplication ({ db, messageStoreDb }) {
   router.route('/user-messages/:userId').get(handlers.handleUserMessagesIndex)
   router.route('/streams/:streamName').get(handlers.handleShowStream)
   router.route('/streams').get(handlers.handleStreamsIndex)
+
+  router.route('/categories/:category').get(handlers.handleCategoryMessages)
+  router.route('/categories').get(handlers.handleCategoriesIndex)
 
   router.route('/subscriber-positions').get(handlers.handleSubscriberPositions)
 

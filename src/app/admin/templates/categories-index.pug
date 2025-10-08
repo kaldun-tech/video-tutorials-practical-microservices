@@ -1,0 +1,19 @@
+extends ./admin-layout
+
+block content
+  h1 All Categories
+
+  if categories.length === 0
+    p There are no categories.
+  else
+    table.table.table-hover
+      thead
+        tr
+          th(scope="col") Category
+          th(scope="col") Message Count
+      tbody
+        each category in categories
+          tr
+            td
+              a(href=`/admin/categories/${category.category}`)= category.category
+            td= category.messageCount
