@@ -9,8 +9,12 @@
 const Bluebird = require('bluebird')
 const knex = require('knex')
 
-function createKnexClient ({ connectionString, migrationsTableName }) { 
-  const client = knex(connectionString) 
+function createKnexClient ({ connectionString, migrationsTableName }) {
+  const client = knex({
+    client: 'pg',
+    connection: connectionString,
+    ssl: { rejectUnauthorized: false }
+  })
 
   const migrationOptions = {
     tableName: migrationsTableName || 'knex_migrations'
