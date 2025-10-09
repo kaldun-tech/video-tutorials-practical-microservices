@@ -3,6 +3,73 @@
 ## Overview
 This document captures lessons learned while deploying the video-tutorials-practical-microservices application to DigitalOcean App Platform with a managed PostgreSQL database.
 
+## Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "DigitalOcean App Platform"
+        LB[Load Balancer<br/>SSL Termination<br/>*.ondigitalocean.app]
+
+        subgraph "App Containers"
+            App1[App Instance 1<br/>Node.js 20<br/>Express Server<br/>Port 8080]
+            App2[App Instance 2<br/>Node.js 20<br/>Express Server<br/>Port 8080]
+        end
+
+        LB --> App1
+        LB --> App2
+    end
+
+    subgraph "Managed PostgreSQL Databases"
+        DB_APP[(Application DB<br/>practical_microservices<br/>Knex Migrations<br/>Tables: users, videos, pages)]
+        DB_MSG[(Message Store DB<br/>message_store<br/>Message-DB Schema<br/>Event Sourcing)]
+    end
+
+    subgraph "Application Components"
+        Agg[Aggregators<br/>home-page<br/>user-credentials<br/>video-operations]
+        Comp[Components<br/>identity<br/>send-email<br/>video-publishing]
+    end
+
+    Internet[Internet/Users] -->|HTTPS| LB
+
+    App1 --> Agg
+    App2 --> Agg
+    Agg --> Comp
+
+    App1 -->|Knex ORM| DB_APP
+    App2 -->|Knex ORM| DB_APP
+
+    App1 -->|Message-DB<br/>write_message<br/>get_stream_messages| DB_MSG
+    App2 -->|Message-DB<br/>write_message<br/>get_stream_messages| DB_MSG
+
+    Comp -.->|Event Sourcing<br/>Domain Events| DB_MSG
+    Agg -.->|Read Projections<br/>CQRS| DB_APP
+
+    style LB fill:#0080ff,color:#fff
+    style App1 fill:#0080ff,color:#fff
+    style App2 fill:#0080ff,color:#fff
+    style DB_APP fill:#326CE5,color:#fff
+    style DB_MSG fill:#326CE5,color:#fff
+    style Agg fill:#90EE90
+    style Comp fill:#FFB366
+```
+
+### Architecture Highlights
+
+**Event Sourcing Pattern:**
+- Components write domain events to Message Store DB
+- Events are immutable and form complete audit trail
+- Aggregators read events and build projections in Application DB
+
+**CQRS Implementation:**
+- **Write side:** Commands → Components → Events → Message Store
+- **Read side:** Aggregators → Projections → Application DB
+- Separate read/write models for optimal performance
+
+**High Availability:**
+- Load balancer distributes traffic across multiple app instances
+- Auto-scaling based on CPU/memory usage
+- Database connection pooling for efficient resource usage
+
 ## Database Architecture
 
 The application requires **two separate databases**:
@@ -223,7 +290,10 @@ Mounted creators portal at `/creators-portal` - was implemented but not connecte
 ## TODO / Outstanding Issues
 
 - [x] Resolve SSL certificate errors - Fixed with improved localhost detection
+- [x] Configure environment variables as encrypted secrets in DigitalOcean (2025-10-09)
 - [ ] **CRITICAL**: Install message-db schema on DigitalOcean database (see Installation Steps above)
+  - **Current Status:** Database exists but schema not installed, causing `write_message() does not exist` errors
+  - **Next Step:** Run `npm run install-message-store` with production connection string
 - [ ] Verify all aggregators and components start successfully
 - [ ] Test full application functionality in production
 - [ ] Consider using DigitalOcean's CA certificate instead of disabling certificate verification

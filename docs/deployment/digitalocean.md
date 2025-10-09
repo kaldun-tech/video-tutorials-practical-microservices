@@ -445,12 +445,16 @@ Click **Add** → **Database** for each:
 **Application Database:**
 - Component: `video-tutorials-app-db`
 - Environment Variable: `DATABASE_URL`
+- Mark as **Encrypted/Secret** for security
 
 **Message Store:**
 - Component: `video-tutorials-message-store`
 - Environment Variable: `MESSAGE_STORE_CONNECTION_STRING`
+- Mark as **Encrypted/Secret** for security
 
-DigitalOcean will auto-populate these with connection strings.
+DigitalOcean will auto-populate these with connection strings and encrypt them.
+
+**Note:** Encrypted environment variables appear as `EV[1:...]` in the app spec but are decrypted at runtime. This is the recommended approach for sensitive values like database connection strings.
 
 #### 5. Configure Health Checks
 

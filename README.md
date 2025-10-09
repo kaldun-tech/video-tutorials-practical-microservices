@@ -3,6 +3,39 @@ Video tutorials app from Practical Microservices by Ethan Garafolo
 
 Visit https://pragprog.com/titles/egmicro for more book information.
 
+## Fintech-Relevant Patterns
+
+This project demonstrates several architectural patterns that are critical for **financial services applications**:
+
+### 🔒 Event Sourcing with Message-DB
+- **Complete audit trail** - Every state change is stored as an immutable event
+- **Temporal queries** - Reconstruct system state at any point in time
+- **Regulatory compliance** - Full transaction history for auditing (SOX, PCI-DSS)
+- **Example use case:** Financial transaction ledgers, account balance history
+
+### ⚡ Idempotent Message Processing
+- **At-least-once delivery** - Safe message reprocessing without duplicate effects
+- **Distributed transaction safety** - Prevents double-charging, duplicate payments
+- **Example use case:** Payment processing, fund transfers, settlement operations
+
+### 📊 CQRS (Command Query Responsibility Segregation)
+- **Separate read/write models** - Optimized for different access patterns
+- **Event-driven projections** - Real-time materialized views from event streams
+- **Example use case:** Account balance views, transaction history, compliance reports
+
+### 🔍 Audit Trails & Compliance
+- **Immutable event log** - Tamper-proof transaction history
+- **Message versioning** - Track schema evolution over time
+- **Causation tracking** - Full correlation between related events
+- **Example use case:** Fraud detection, dispute resolution, regulatory audits
+
+### 🏗️ Microservices with Domain Events
+- **Eventual consistency** - Loosely coupled services communicate via events
+- **Autonomous components** - Independent deployment and scaling
+- **Example use case:** Payment processing, risk assessment, notification systems
+
+**Why this matters for fintech:** Financial systems require strong guarantees around data consistency, auditability, and reliability. Event sourcing provides an immutable audit log, idempotence prevents duplicate transactions, and CQRS enables real-time reporting without impacting transaction processing.
+
 ## Prerequisites
 - Node.js 20.11.0
 - PostgreSQL 16
