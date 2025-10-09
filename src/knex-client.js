@@ -19,12 +19,26 @@ function createKnexClient ({ connectionString, migrationsTableName }) {
 
   const useSSL = !isLocalhost
 
+  // Remove query parameters that might interfere
+  let cleanConnectionString = connectionString
+  if (useSSL) {
+    const url = new URL(connectionString)
+    url.searchParams.delete('sslmode')
+    url.searchParams.delete('ssl')
+    cleanConnectionString = url.toString()
+  }
+
   const config = {
     client: 'pg',
-    connection: useSSL ? {
-      connectionString: connectionString,
+    connection: cleanConnectionString
+  }
+
+  // Add SSL configuration if needed
+  if (useSSL) {
+    config.connection = {
+      connectionString: cleanConnectionString,
       ssl: { rejectUnauthorized: false }
-    } : connectionString
+    }
   }
 
   const client = knex(config)
