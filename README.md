@@ -1,7 +1,20 @@
 # video-tutorials-practical-microservices
-Video tutorials app from Practical Microservices by Ethan Garafolo
+Video tutorials app from Practical Microservices by Ethan Garafolo.
+
+This presents building a video tutorials app from scratch using microservices and event sourcing.
 
 Visit https://pragprog.com/titles/egmicro for more book information.
+
+## What I learned
+- Microservices help organizations scale as they grow, but they also add complexity. 
+- Modular monoliths are preferable for getting new software projects started.
+- Event sourcing in distributed systems provides an immutable audit trail of all state changes.
+- Idempotent message processing is important for building distributed systems. This prevents duplicate processing of messages.
+- CQRS is a pattern that separates read and write models. This allows for optimized access patterns.
+- The event store is a specialized database that stores events in a way that allows for temporal queries and replay of events.
+- Aggregates are a domain-driven design pattern that represent clusters of related objects treated as a single unit.
+- This system has eventual consistency, similar to NoSQL databases like MongoDB. Services may not immediately reflect the latest state of the system.
+- Defining clear boundaries between services is critical to defining the scope of each service.
 
 ## Fintech-Relevant Patterns
 
@@ -35,6 +48,16 @@ This project demonstrates several architectural patterns that are critical for *
 - **Example use case:** Payment processing, risk assessment, notification systems
 
 **Why this matters for fintech:** Financial systems require strong guarantees around data consistency, auditability, and reliability. Event sourcing provides an immutable audit log, idempotence prevents duplicate transactions, and CQRS enables real-time reporting without impacting transaction processing.
+
+## Tech Stack
+- Node.js
+- Express.js
+- PostgreSQL run locally in a Docker container
+- Knex.js
+- Bluebird
+- Blue-tape
+- Pug
+- DigitalOcean App Platform
 
 ## Prerequisites
 - Node.js 20.11.0
@@ -112,6 +135,73 @@ node src/app/home/home.test.js
 
 Note: The project uses blue-tape for testing. The main test file is located at `src/app/home/home.test.js`.
 
+## Architecture
+
+This application demonstrates event-sourced microservices using CQRS pattern:
+
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        UI[Express.js App<br/>Routes & Templates]
+    end
+
+    subgraph "Application Layer"
+        Home[Home Page]
+        Record[Record Viewings]
+        Register[Register Users]
+        Auth[Authentication]
+    end
+
+    subgraph "CQRS Pattern"
+        direction LR
+
+        subgraph "Write Side - Commands"
+            Components[Components<br/>Identity<br/>Send Email<br/>Video Publishing]
+        end
+
+        subgraph "Event Store"
+            MessageStore[(Message Store<br/>PostgreSQL<br/>Event Sourcing)]
+        end
+
+        subgraph "Read Side - Queries"
+            Aggregators[Aggregators<br/>Home Page<br/>User Credentials<br/>Video Operations]
+        end
+    end
+
+    subgraph "Data Layer"
+        AppDB[(Application DB<br/>PostgreSQL<br/>Projections)]
+    end
+
+    UI --> Home
+    UI --> Record
+    UI --> Register
+    UI --> Auth
+
+    Home --> Aggregators
+    Record --> Components
+    Register --> Components
+    Auth --> Aggregators
+
+    Components -->|write_message<br/>Domain Events| MessageStore
+    MessageStore -->|Event Stream| Aggregators
+    Aggregators -->|Materialize<br/>Projections| AppDB
+
+    Components -.->|Subscribe to<br/>Events| MessageStore
+
+    style UI fill:#E8F5E9
+    style Components fill:#FFE0B2
+    style MessageStore fill:#E1F5FE
+    style Aggregators fill:#F3E5F5
+    style AppDB fill:#E1F5FE
+```
+
+### Key Patterns
+
+**Event Sourcing**: All state changes stored as immutable events in Message Store
+**CQRS**: Separate write model (Components → Events) from read model (Aggregators → Projections)
+**Eventual Consistency**: Aggregators asynchronously build projections from event streams
+**Idempotent Processing**: Safe message reprocessing with at-least-once delivery
+
 ## Project Structure
 
 - `src/` - Source code
@@ -159,7 +249,7 @@ Choose your deployment platform based on your goals:
 ```mermaid
 graph TD
     A[Choose Deployment] --> B{Primary Goal?}
-    B -->|AWS Portfolio| C[AWS ECS Fargate]
+    B -->|AWS Portfolio Building| C[AWS ECS Fargate]
     B -->|Quick AWS Start| D[AWS Elastic Beanstalk]
     B -->|Simplicity & Cost| E[DigitalOcean]
 
